@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+       <title>Build-a-blog</title>
+    </head>
+    <style type="text/css">
+        body {
+        }
+        
+        .date{
+            font-size: 0.7em;
+            color: grey;
+        }
+
+        .error{
+        }
+
+        label{
+        }
+
+        input{
+        }
+        
+        textarea{
+        }
+
+        input[type=submit]{
+        }
+
+        hr{
+        }
+
+        .post{
+        }
+
+        .post-title{
+        }
+
+        .post-body{
+        }
+    </style>
+
+    <body>
+	<h1 style="background-color: #ddd; color: #888; margin: 0 height: 50px">
+            <a href='/'>Build-a-blog</a>
+	</h1>
+        <div>
+            <a href='/blog'>Blog Posts</a>
+            <a href='/newpost'>Submit new Post</a>
+        </div>
+	{% block content %}
+	{% endblock %}
+    </body>
+
+</html>
