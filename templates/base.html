@@ -35,9 +35,15 @@
         }
 
         .post-title{
+            padding: 0 5%;
         }
 
         .post-body{
+        }
+        .latest-post{
+            padding: 0 50%;
+
+            border-style: inset;
         }
     </style>
 
@@ -46,9 +52,10 @@
             <a href='/'>Build-a-blog</a>
 	</h1>
         <div>
-            <a href='/blog'>Blog Posts</a>
+            <a href='/blog?page=1'>Blog Posts</a>
             <a href='/newpost'>Submit new Post</a>
         </div>
+        <hr>
 	{% block content %}
 	{% endblock %}
     </body>

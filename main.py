@@ -6,6 +6,21 @@ from google.appengine.ext import db
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
+def get_posts(limit, offset):
+    posts = db.GqlQuery("select * from Post order by created DESC limit {} OFFSET {}".format(limit, offset))
+    return posts
+
+def show_blogs(self):
+    page = 1 
+    if self.request.get('page'):
+        page = self.request.get('page')
+    page_size = 5
+    def get_offset(page): 
+        page_offset = page_size * (int(page) -1)
+        return page_offset
+    posts = get_posts(page_size, int(get_offset(page)))
+    return posts
+
 class Post(db.Model):
     title = db.StringProperty(required = True)
     body = db.TextProperty(required = True)
@@ -23,27 +38,24 @@ class MainHandler(webapp2.RequestHandler):
     def render(self, template, **kw):
     	self.write(self.render_str(template, **kw))
 
-class BlogHandler(webapp2.RequestHandler):
-    def write(self, *a, **kw):
-    	self.response.out.write(*a, **kw)
-
-    def render_str(self, template, **params):
-    	t = jinja_env.get_template(template)
-	return t.render(params)
-
+class BlogHandler(MainHandler):
     def render(self, template, **kw):
     	self.write(self.render_str(template, **kw))
+    def render_blog(self, title="", body="", buttons=''):
+        posts = show_blogs(self)
+        max_page = (((posts.count() // 5))) if not (posts.count() % 5) else ((posts.count() // 5) + 1)
+        page = 1
+        if self.request.get('page'):
+            page = self.request.get('page')
+        self.render("blog.html", title = title, body = body, posts = show_blogs(self), page_num = int(page), max_page = max_page)
 
-class PostHandler(webapp2.RequestHandler):
+    def write(self, *a, **kw):
+        self.response.out.write(*a, **kw)
+
+
+class PostHandler(MainHandler):
     def write(self, *a, **kw):
     	self.response.out.write(*a, **kw)
-
-    def render_str(self, template, **params):
-    	t = jinja_env.get_template(template)
-	return t.render(params)
-
-    def render(self, template, **kw):
-    	self.write(self.render_str(template, **kw))
 
 class ViewPostHandler(webapp2.RequestHandler):
     def get(self, id):
@@ -58,7 +70,7 @@ class ViewPostHandler(webapp2.RequestHandler):
 
 class MainPage(MainHandler):
     def render_main(self, title="", body="", error=""):
-        posts = db.GqlQuery("select * from Post order by created DESC limit 5")
+        posts = get_posts(1,0)
         self.render("main.html", title = title, body = body, error = error, posts = posts)
 
     def get(self):
@@ -79,12 +91,12 @@ class MainPage(MainHandler):
 	
 class BlogPage(BlogHandler):
 
-    def render_blog(self, title="", body=""):
-        posts = db.GqlQuery("select * from Post order by created DESC limit 5")
-        self.render("blog.html", title = title, body = body, posts = posts)
-
     def get(self):
+
         self.render_blog()
+
+
+    
 
 class NewPostPage(PostHandler):
     
